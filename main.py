@@ -11,7 +11,7 @@ def env(key):
     return value
 
 client = TelegramClient(
-    "voice",
+    "data/voice.session",
     env("TG_API_ID"),
     env("TG_API_HASH"),
     system_version='4.16.30-vxMOGVoice'
