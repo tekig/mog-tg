@@ -76,20 +76,30 @@ async def onRaw(event):
             if participant.peer.user_id == me.id:
                 print("I'm in the call")
                 continue
-            if not participant.just_joined:
+            if not participant.just_joined and not participant.left:
                 continue
 
             chat_id = chatIDByCallID.get(event.call.id, None)
             if chat_id is None:
                 raise Exception(f"Chat ID not found by call ID {event.call.id}")
             
-            userVoice = os.path.join(voicePath, f"{participant.peer.user_id}.mp3")
-            defaultVoise = os.path.join(voicePath, "default.mp3")
+            
+            userVoice = ""
+            if participant.just_joined:
+                userVoice = os.path.join(voicePath, f"{participant.peer.user_id}.mp3")
+                defaultVoise = os.path.join(voicePath, "default.mp3")
 
-            if not os.path.exists(userVoice):
-                if not os.path.exists(defaultVoise):
-                    raise Exception("Default voice not found")
-                userVoice = defaultVoise
+                if not os.path.exists(userVoice):
+                    if not os.path.exists(defaultVoise):
+                        raise Exception("Default voice not found")
+                    userVoice = defaultVoise
+            elif participant.left:
+                userVoice = os.path.join(voicePath, "default_left.mp3")
+
+                if not os.path.exists(userVoice):
+                    raise Exception("Default left voice not found")
+            else:
+                raise Exception("Unknown participant action")
 
             await voice.play(
                 chat_id,
