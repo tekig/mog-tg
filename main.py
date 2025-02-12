@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-from telethon.tl.types import UpdateGroupCallParticipants, UpdateGroupCall, UpdateNewMessage, UpdateShortMessage
+from telethon.tl.types import User, UpdateGroupCallParticipants, UpdateGroupCall, UpdateNewMessage, UpdateShortMessage
 from pytgcalls import PyTgCalls
 from pytgcalls.types import MediaStream
 import os, asyncio, re
@@ -115,6 +115,14 @@ async def onRaw(event):
     if isinstance(event, (UpdateShortMessage, UpdateNewMessage)):
         message = event.message if isinstance(event, UpdateShortMessage) else event.message.message
         user_id = event.user_id if isinstance(event, UpdateShortMessage) else event.message.peer_id.user_id
+
+        entity = await client.get_entity(user_id)
+        print(entity)
+        if not isinstance(entity, User):
+            return
+        if entity.bot:
+            return
+
         try:
             url = extract_url(message)
             if url is None:
